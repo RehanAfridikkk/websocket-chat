@@ -1,20 +1,32 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
+	"websocket-chat/controller"
 	"websocket-chat/handlers"
+
+	"github.com/labstack/echo"
 )
 
 func main() {
-	http.HandleFunc("/", handlers.HomePage)
-	http.HandleFunc("/ws", handlers.HandleConnections)
+	e := echo.New()
+	// http.HandleFunc("/", handlers.HomePage)
+	// http.HandleFunc("/ws", handlers.HandleConnections)
 
 	go handlers.HandleMessages()
 
-	fmt.Println("Server started on :8080")
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		panic("Error starting server: " + err.Error())
-	}
+	e.POST("/signup", controller.Signup)
+	e.POST("/login", controller.Login)
+	e.POST("/migrate", controller.Migrate)
+
+	// fmt.Println("Server started on :8080")
+	// err := http.ListenAndServe(":8080", nil)
+	// if err != nil {
+	// 	panic("Error starting server: " + err.Error())
+	// }
+
+	// Defer closing the database connection
+	e.Logger.Fatal(e.Start(":1304"))
+	// Pass the gorm.DB instance to the controller
+	// controller.SetDB(db)
+
 }
