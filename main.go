@@ -13,18 +13,24 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-var clients = make(map[*websocket.Conn]bool)
-var broadcast = make(chan MessageWithSender)
-
-type Message struct {
-	Username string `json:"username"`
-	Message  string `json:"message"`
-}
 
 type MessageWithSender struct {
 	Sender  *websocket.Conn
 	Message Message
 }
+
+type Message struct {
+	Username string `json:"username"`
+	To       string `json:"to"`      
+	Message  string `json:"message"`
+}
+
+
+var clients = make(map[*websocket.Conn]string) 
+var broadcast = make(chan MessageWithSender)
+
+
+
 
 func main() {
 	http.HandleFunc("/", homePage)
@@ -51,7 +57,9 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	clients[conn] = true
+	username := r.Header.Get("username")
+
+	clients[conn] = username
 
 	for {
 		var msg Message
@@ -62,10 +70,11 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-	
 		broadcast <- MessageWithSender{Sender: conn, Message: msg}
 	}
 }
+
+
 
 func handleMessages() {
 	for {
@@ -73,17 +82,59 @@ func handleMessages() {
 		sender := msgWithSender.Sender
 		msg := msgWithSender.Message
 
-		for client := range clients {
-			if client == sender {
-				continue
+		if msg.To != "" {
+			targetClient, found := findClientByUsername(msg.To, sender)
+			if found && targetClient != nil { 
+				err := targetClient.WriteJSON(Message{
+					Username: msg.Username,
+					To:       msg.To,
+					Message:  msg.Message,
+				})
+				if err != nil {
+					fmt.Println(err)
+					targetClient.Close()
+					delete(clients, targetClient)
+				}
+			} else {
+				err := sender.WriteJSON(Message{
+					Username: "System",
+					Message:  "User does not exist.",
+				})
+				if err != nil {
+					fmt.Println(err)
+					sender.Close()
+					delete(clients, sender)
+				}
 			}
+		} else {
+			for client, _ := range clients {
+				if client == sender {
+					continue
+				}
 
-			err := client.WriteJSON(msg)
-			if err != nil {
-				fmt.Println(err)
-				client.Close()
-				delete(clients, client)
+				err := client.WriteJSON(Message{
+					Username: msg.Username,
+					Message:  msg.Message,
+				})
+				if err != nil {
+					fmt.Println(err)
+					client.Close()
+					delete(clients, client)
+				}
 			}
 		}
 	}
 }
+
+
+
+func findClientByUsername(username string, sender *websocket.Conn) (*websocket.Conn, bool) {
+	for client, u := range clients {
+		if u == username && client != sender {
+			return client, true
+		}
+	}
+	return nil, false
+}
+
+
