@@ -29,7 +29,6 @@ func HandleWebSocket(c echo.Context) error {
 	}
 	defer conn.Close()
 
-	// Extract username from JWT in Authorization header
 	senderUsername, err := utils.ExtractUsernameFromToken(c)
 	if err != nil {
 		log.Println(err)
