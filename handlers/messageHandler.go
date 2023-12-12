@@ -8,9 +8,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var clients = make(map[*websocket.Conn]string)
-var broadcast = make(chan structure.MessageWithSender)
-
 func HandleMessages() {
 	for {
 		msgWithSender := <-broadcast

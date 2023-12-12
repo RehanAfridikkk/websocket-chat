@@ -17,7 +17,7 @@ func main() {
 	e.POST("/signup", controller.Signup)
 	e.POST("/login", controller.Login)
 	e.POST("/migrate", controller.Migrate)
-
+	e.GET("/ws", handlers.HandleWebSocket)
 	// fmt.Println("Server started on :8080")
 	// err := http.ListenAndServe(":8080", nil)
 	// if err != nil {
