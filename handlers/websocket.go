@@ -30,14 +30,14 @@ func HandleWebSocket(c echo.Context) error {
 	defer conn.Close()
 
 	// Extract username from JWT in Authorization header
-	username, err := utils.ExtractUsernameFromToken(c)
+	senderUsername, err := utils.ExtractUsernameFromToken(c)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
 	mu.Lock()
-	clients[conn] = username
+	clients[conn] = senderUsername
 	mu.Unlock()
 
 	for {
@@ -50,6 +50,8 @@ func HandleWebSocket(c echo.Context) error {
 			mu.Unlock()
 			return err
 		}
+
+		msg.Username = senderUsername
 
 		broadcast <- structure.MessageWithSender{Sender: conn, Message: msg}
 	}
