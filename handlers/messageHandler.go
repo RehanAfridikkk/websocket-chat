@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	structure "websocket-chat/struct"
+	"websocket-chat/utils"
 
 	"github.com/gorilla/websocket"
 )
@@ -15,7 +16,7 @@ func HandleMessages() {
 		msg := msgWithSender.Message
 
 		if msg.To != "" {
-			targetClient, found := findClientByUsername(msg.To, sender)
+			targetClient, found := FindClientByUsername(msg.To, sender)
 			if found && targetClient != nil {
 				err := targetClient.WriteJSON(structure.Message{
 					Username: msg.Username,
@@ -39,26 +40,33 @@ func HandleMessages() {
 				}
 			}
 		} else {
-			for client, _ := range clients {
+			for client, clientUsername := range clients {
 				if client == sender {
 					continue
 				}
 
-				err := client.WriteJSON(structure.Message{
-					Username: msg.Username,
-					Message:  msg.Message,
-				})
-				if err != nil {
-					fmt.Println(err)
-					client.Close()
-					delete(clients, client)
+				roomId := msg.Room
+				db, _ := utils.OpenDB()
+
+				var roomClients []structure.Client
+				db.Where("room_id = ?", roomId).Find(&roomClients)
+
+				for _, roomClient := range roomClients {
+
+					if roomClient.Username == clientUsername {
+						client.WriteJSON(structure.Message{
+							Username: msg.Username,
+							Message:  msg.Message,
+						})
+					}
 				}
+
 			}
 		}
 	}
 }
 
-func findClientByUsername(username string, sender *websocket.Conn) (*websocket.Conn, bool) {
+func FindClientByUsername(username string, sender *websocket.Conn) (*websocket.Conn, bool) {
 	for client, u := range clients {
 		if u == username && client != sender {
 			return client, true

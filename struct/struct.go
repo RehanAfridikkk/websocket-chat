@@ -3,6 +3,7 @@ package structure
 import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/websocket"
+	"gorm.io/gorm"
 )
 
 type MessageWithSender struct {
@@ -14,6 +15,13 @@ type Message struct {
 	Username string `json:"username"`
 	To       string `json:"to"`
 	Message  string `json:"message"`
+	Room     uint   `json:"room"`
+}
+type RoomMessage struct {
+	Username string `json:"username"`
+	To       string `json:"to"`
+	Message  string `json:"message"`
+	Room     string `json:"room"`
 }
 
 type LoginRequest struct {
@@ -24,6 +32,19 @@ type JwtCustomClaims struct {
 	Name  string `json:"name"`
 	Admin bool   `json:"admin"`
 	jwt.RegisteredClaims
+}
+
+type Client struct {
+	gorm.Model
+	Username string
+	RoomID   uint
+}
+
+type ChatRoom struct {
+	gorm.Model
+	Name     string
+	Password string
+	Clients  []Client `gorm:"foreignKey:RoomID"`
 }
 
 // type User struct {
