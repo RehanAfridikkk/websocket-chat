@@ -21,10 +21,14 @@ func RoomList(c echo.Context) error {
 		return c.JSON(500, echo.Map{"error": "Failed to retrieve room list"})
 	}
 
-	roomNames := make([]string, len(roomsList))
-	for i, room := range roomsList {
-		roomNames[i] = room.Name
+	// Create a slice of room details containing both name and ID
+	var roomDetails []map[string]interface{}
+	for _, room := range roomsList {
+		roomDetails = append(roomDetails, map[string]interface{}{
+			"id":   room.ID,
+			"name": room.Name,
+		})
 	}
 
-	return c.JSON(200, echo.Map{"rooms": roomNames})
+	return c.JSON(200, echo.Map{"rooms": roomDetails})
 }

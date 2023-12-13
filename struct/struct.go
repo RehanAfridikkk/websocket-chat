@@ -15,6 +15,12 @@ type Message struct {
 	Username string `json:"username"`
 	To       string `json:"to"`
 	Message  string `json:"message"`
+	Room     uint   `json:"room"`
+}
+type RoomMessage struct {
+	Username string `json:"username"`
+	To       string `json:"to"`
+	Message  string `json:"message"`
 	Room     string `json:"room"`
 }
 
@@ -39,6 +45,10 @@ type ChatRoom struct {
 	Name     string
 	Password string
 	Clients  []Client `gorm:"foreignKey:RoomID"`
+}
+type ClientInfo struct {
+	Username string `json:"username"`
+	ChatRoom string `json:"chatRoom"`
 }
 
 // type User struct {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	structure "websocket-chat/struct"
+	"websocket-chat/utils"
 
 	"github.com/gorilla/websocket"
 )
@@ -15,7 +16,7 @@ func HandleMessages() {
 		msg := msgWithSender.Message
 
 		if msg.To != "" {
-			targetClient, found := findClientByUsername(msg.To, sender)
+			targetClient, found := FindClientByUsername(msg.To, sender)
 			if found && targetClient != nil {
 				err := targetClient.WriteJSON(structure.Message{
 					Username: msg.Username,
@@ -44,21 +45,33 @@ func HandleMessages() {
 					continue
 				}
 
-				err := client.WriteJSON(structure.Message{
-					Username: msg.Username,
-					Message:  msg.Message,
-				})
-				if err != nil {
-					fmt.Println(err)
-					client.Close()
-					delete(clients, client)
+				roomId := msg.Room
+				db, _ := utils.OpenDB()
+
+				var roomClients []structure.Client
+				db.Where("room_id = ?", roomId).Find(&roomClients)
+
+				for range roomClients {
+					// Assuming structure.Client has no Sender field
+					targetClient := client
+
+					err := targetClient.WriteJSON(structure.Message{
+						Username: msg.Username,
+						Message:  msg.Message,
+					})
+					if err != nil {
+						fmt.Println(err)
+						targetClient.Close()
+						// Optionally, remove the disconnected client from the roomClients slice.
+						// This depends on your requirements.
+					}
 				}
 			}
 		}
 	}
 }
 
-func findClientByUsername(username string, sender *websocket.Conn) (*websocket.Conn, bool) {
+func FindClientByUsername(username string, sender *websocket.Conn) (*websocket.Conn, bool) {
 	for client, u := range clients {
 		if u == username && client != sender {
 			return client, true

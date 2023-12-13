@@ -24,5 +24,25 @@ func JoinRoom(c echo.Context) error {
 		return c.JSON(400, echo.Map{"error": "Invalid room name or password"})
 	}
 
+	// Extract sender's username from JWT in Authorization header
+	senderUsername, err := utils.ExtractUsernameFromToken(c)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// Create a new client record for the user joining the room
+	client := structure.Client{
+		Username: senderUsername,
+		RoomID:   room.ID,
+	}
+
+	// Save the client record in the database
+	err = db.Create(&client).Error
+	if err != nil {
+		log.Println(err)
+		return c.JSON(500, echo.Map{"error": "Failed to join room"})
+	}
+
 	return c.JSON(200, echo.Map{"message": "Joined room successfully"})
 }
