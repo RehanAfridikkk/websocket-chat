@@ -35,6 +35,7 @@ func JoinRoom(c echo.Context) error {
 	client := structure.Client{
 		Username: senderUsername,
 		RoomID:   room.ID,
+		RoomName: room.Name,
 	}
 
 	// Save the client record in the database
