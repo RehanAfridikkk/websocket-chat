@@ -16,6 +16,7 @@ type Message struct {
 	To       string `json:"to"`
 	Message  string `json:"message"`
 	Room     uint   `json:"room"`
+	RoomName string `json:"roomname"`
 }
 type RoomMessage struct {
 	Username string `json:"username"`
@@ -38,6 +39,7 @@ type Client struct {
 	gorm.Model
 	Username string
 	RoomID   uint
+	RoomName string
 }
 
 type ChatRoom struct {

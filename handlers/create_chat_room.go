@@ -52,6 +52,7 @@ func CreateRoom(c echo.Context, db *gorm.DB) error {
 	client := structure.Client{
 		Username: senderUsername,
 		RoomID:   newRoom.ID,
+		RoomName: newRoom.Name,
 	}
 	db.Create(&client)
 	mu.Unlock()

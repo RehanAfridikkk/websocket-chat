@@ -45,11 +45,11 @@ func HandleMessages() {
 					continue
 				}
 
-				roomId := msg.Room
+				roomname := msg.RoomName
 				db, _ := utils.OpenDB()
 
 				var roomClients []structure.Client
-				db.Where("room_id = ?", roomId).Find(&roomClients)
+				db.Where("room_name = ?", roomname).Find(&roomClients)
 
 				for _, roomClient := range roomClients {
 
