@@ -40,7 +40,7 @@ func HandleMessages() {
 				}
 			}
 		} else {
-			for client, _ := range clients {
+			for client, clientUsername := range clients {
 				if client == sender {
 					continue
 				}
@@ -51,21 +51,16 @@ func HandleMessages() {
 				var roomClients []structure.Client
 				db.Where("room_id = ?", roomId).Find(&roomClients)
 
-				for range roomClients {
-					// Assuming structure.Client has no Sender field
-					targetClient := client
+				for _, roomClient := range roomClients {
 
-					err := targetClient.WriteJSON(structure.Message{
-						Username: msg.Username,
-						Message:  msg.Message,
-					})
-					if err != nil {
-						fmt.Println(err)
-						targetClient.Close()
-						// Optionally, remove the disconnected client from the roomClients slice.
-						// This depends on your requirements.
+					if roomClient.Username == clientUsername {
+						client.WriteJSON(structure.Message{
+							Username: msg.Username,
+							Message:  msg.Message,
+						})
 					}
 				}
+
 			}
 		}
 	}

@@ -46,10 +46,6 @@ type ChatRoom struct {
 	Password string
 	Clients  []Client `gorm:"foreignKey:RoomID"`
 }
-type ClientInfo struct {
-	Username string `json:"username"`
-	ChatRoom string `json:"chatRoom"`
-}
 
 // type User struct {
 // 	gorm.Model
