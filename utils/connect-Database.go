@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
@@ -20,8 +21,8 @@ func OpenDB() (*gorm.DB, error) {
 	dbUser := os.Getenv("DB_USER")
 	dbName := os.Getenv("DB_NAME")
 	dbPassword := os.Getenv("DB_PASSWORD")
-
-	connStr := fmt.Sprintf("user=%s dbname=%s password=%s sslmode=disable host=localhost", dbUser, dbName, dbPassword)
+	time.Sleep(30 * time.Second)
+	connStr := fmt.Sprintf("user=%s dbname=%s password=%s sslmode=disable host=postgres-database", dbUser, dbName, dbPassword)
 	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
