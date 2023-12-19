@@ -22,7 +22,7 @@ func OpenDB() (*gorm.DB, error) {
 	dbName := os.Getenv("DB_NAME")
 	dbPassword := os.Getenv("DB_PASSWORD")
 	time.Sleep(30 * time.Second)
-	connStr := fmt.Sprintf("user=%s dbname=%s password=%s sslmode=disable host=localhost", dbUser, dbName, dbPassword)
+	connStr := fmt.Sprintf("user=%s dbname=%s password=%s sslmode=disable host=postgres-database", dbUser, dbName, dbPassword)
 	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
