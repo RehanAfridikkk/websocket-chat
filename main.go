@@ -2,15 +2,20 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"websocket-chat/controller"
 	"websocket-chat/handlers"
 	"websocket-chat/utils"
 
+	"github.com/gorilla/mux"
 	"github.com/labstack/echo"
 )
 
 func main() {
 	e := echo.New()
+	r := mux.NewRouter()
+	r.HandleFunc("/heath", healthHandler)
+	r.HandleFunc("/readiness", readinessHandler)
 	// http.HandleFunc("/", handlers.HomePage)
 	// http.HandleFunc("/ws", handlers.HandleConnections)
 
@@ -20,6 +25,7 @@ func main() {
 	e.POST("/login", controller.Login)
 	e.POST("/migrate", controller.Migrate)
 	e.GET("/ws", handlers.HandleWebSocket)
+
 	db, err := utils.OpenDB()
 	if err != nil {
 		log.Fatal(err)
@@ -40,4 +46,11 @@ func main() {
 	// Pass the gorm.DB instance to the controller
 	// controller.SetDB(db)
 
+}
+
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+func readinessHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }
