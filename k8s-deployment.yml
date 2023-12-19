@@ -1,30 +1,30 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: go-chatroom
+  name: rafay-app
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: go-chatroom
+      app: rafay-app
   template:
     metadata:
       labels:
-        app: go-chatroom
+        app: rafay-app
     spec:
       containers:
-      - name: go-chatroom
-        image: rehanafridi/go-chatroom:1.0.0 
+      - name: rehan-app
+        image: rehanafridi/rafay-app:1.0.0
         imagePullPolicy: IfNotPresent
         ports:
           - containerPort: 1304
-        readinessProbe:
-          httpGet:
-            path: /readiness
-            port: 1304
-            scheme: HTTP
-          initialDelaySeconds: 5
-          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: "500m"    
+            memory: "256Mi"  
+          requests:
+            cpu: "250m"    
+            memory: "128Mi"  
         livenessProbe:
           httpGet:
             path: /health
@@ -33,10 +33,10 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 15
           timeoutSeconds: 5
-        resources:
-          requests:
-            memory: "64Mi"
-            cpu: "250m"
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /readiness
+            port: 1304
+            scheme: HTTP
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
