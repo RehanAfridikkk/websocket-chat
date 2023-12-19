@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rafay-app
+  name: room-chat
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: rafay-app
+      app: room-chat
   template:
     metadata:
       labels:
-        app: rafay-app
+        app: room-chat
     spec:
       containers:
-      - name: rehan-app
-        image: rehanafridi/rafay-app:1.0.0
+      - name: room-chat
+        image: rehanafridi/room-chat:1.0.0
         imagePullPolicy: IfNotPresent
         ports:
           - containerPort: 1304
